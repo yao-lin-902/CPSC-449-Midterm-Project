@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/pico.min.css" />
+    <link rel="icon" href="../static/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="manifest" href="../static/site.webmanifest">
+    {% block head %} {% endblock %}
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="container">
+      <hgroup>
+        <h1>Blog Page</h1>
+        <h2>A simple blog page to share your ideas with the world!</h2>
+      </hgroup>
+      <nav>
+        <ul>
+          <li>
+            <a href="{{url_for('home')}}"><strong>Home</strong></a>
+          </li>
+          <li>
+            <a href="{{url_for('login')}}"><strong>Sign In</strong></a>
+          </li>
+          <li>
+            <a href="{{url_for('register')}}"><strong>Sign Up</strong></a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="container">
+      {% block body %} {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="container">
+      <small>Built with <a href="https://picocss.com">Pico</small>
+    </footer>
+  </body>
+</html>
