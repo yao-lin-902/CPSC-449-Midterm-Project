@@ -23,15 +23,21 @@
           <li>
             <a href="{{url_for('home')}}"><strong>Home</strong></a>
           </li>
+          {% if 'access_token_cookie' in request.cookies %}
+          <li>
+            <a href="{{url_for('protected_profile')}}"><strong>Profile</strong></a>
+          </li>
+          <li>
+            <a href="{{url_for('logout')}}"><strong>Sign Out</strong></a>
+          </li>
+          {% else %}
           <li>
             <a href="{{url_for('login')}}"><strong>Sign In</strong></a>
           </li>
           <li>
             <a href="{{url_for('register')}}"><strong>Sign Up</strong></a>
           </li>
-          <li>
-            <a href="{{url_for('logout')}}"><strong>Sign Out</strong></a>
-          </li>
+          {% endif %}
         </ul>
       </nav>
     </header>

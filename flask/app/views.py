@@ -1,4 +1,4 @@
-from app import app, mysql, jwt
+from app import app, mysql, jwt, flask_bcrypt, RegisterForm, LoginForm
 from flask import (
     Flask,
     render_template,
@@ -29,21 +29,18 @@ def home():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    cur = mysql.connection.cursor()
     msg = ""
-    if (
-        request.method == "POST"
-        and "username" in request.form
-        and "password" in request.form
-    ):
-        username = request.form["username"]
-        password = request.form["password"]
+    form = LoginForm(request.form)
+    if request.method == "POST" and form.validate():
+        cur = mysql.connection.cursor()
+        username = form.username.data
+        password = form.password.data
         cur.execute(
-            "SELECT * FROM user WHERE username = %s AND password = %s",
-            (username, password),
+            "SELECT * FROM user WHERE username = %s",
+            (username,),
         )
         user = cur.fetchone()
-        if user:
+        if user and flask_bcrypt.check_password_hash(user[3], password):
             msg = "Login successfully!"
             access_token = create_access_token(identity=username)
             resp = make_response(render_template("login.html", msg=msg))
@@ -51,25 +48,19 @@ def login():
             return resp
         else:
             msg = "Incorrect login!"
-    return render_template("login.html", msg=msg)
+    return render_template("login.html", msg=msg, form=form)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    cur = mysql.connection.cursor()
     msg = ""
-    if (
-        request.method == "POST"
-        and "name" in request.form
-        and "username" in request.form
-        and "password" in request.form
-    ):
-        name = request.form["name"]
-        username = request.form["username"]
-        password = request.form["password"]
-        cur.execute(
-            "SELECT * FROM user WHERE username = %s", (request.form["username"],)
-        )
+    form = RegisterForm(request.form)
+    if request.method == "POST" and form.validate():
+        cur = mysql.connection.cursor()
+        name = form.name.data
+        username = form.username.data
+        password = flask_bcrypt.generate_password_hash(form.password.data)
+        cur.execute("SELECT * FROM user WHERE username = %s", (username,))
         user = cur.fetchone()
         if user:
             msg = "User already exist!"
@@ -84,14 +75,13 @@ def register():
             )
             mysql.connection.commit()
             msg = "Register successfully!"
-    return render_template("register.html", msg=msg)
+    return render_template("register.html", msg=msg, form=form)
 
 
 @app.route("/logout")
 def logout():
     resp = make_response(render_template("login.html"))
     unset_jwt_cookies(resp)
-    resp.set_cookie("access_token", "", expires=0)
     return resp
 
 
@@ -99,8 +89,7 @@ def logout():
 @jwt_required()
 def protected_profile():
     username = get_jwt_identity()
-    print(username)
-    return render_template("profile.html")
+    return render_template("profile.html", username=username)
 
 
 # error handling

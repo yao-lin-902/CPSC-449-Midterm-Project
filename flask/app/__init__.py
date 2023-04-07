@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask_jwt_extended import JWTManager
+from flask_bcrypt import Bcrypt
+from wtforms import Form, StringField, PasswordField, validators
 from datetime import timedelta
 
 app = Flask(__name__)
@@ -14,5 +16,48 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 
 mysql = MySQL(app)
 jwt = JWTManager(app)
+flask_bcrypt = Bcrypt(app)
+
+
+class RegisterForm(Form):
+    name = StringField(
+        "Name", [validators.DataRequired(), validators.Length(min=1, max=30)]
+    )
+    username = StringField(
+        "Username",
+        [
+            validators.Regexp(
+                "^\w+$",
+                message="Username must contain only letters, numbers, or underscore",
+            ),
+            validators.DataRequired(),
+            validators.Length(min=6, max=30),
+        ],
+    )
+    password = PasswordField(
+        "Password",
+        [
+            validators.DataRequired(),
+            validators.Length(min=6, max=25),
+        ],
+    )
+
+
+class LoginForm(Form):
+    username = StringField(
+        "Username",
+        [
+            validators.Regexp(
+                "^\w+$",
+                message="Username must contain only letters, numbers, or underscore",
+            ),
+            validators.DataRequired(),
+            validators.Length(min=6, max=30),
+        ],
+    )
+    password = PasswordField(
+        "Password", [validators.DataRequired(), validators.Length(min=6, max=25)]
+    )
+
 
 from app import views

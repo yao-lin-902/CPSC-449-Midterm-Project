@@ -8,21 +8,27 @@
       <h2>Log in to post and comment</h2>
     </hgroup>
     <form action="{{url_for('login')}}" method="POST" autocomplete="off">
-      <div role="alert">{{ msg }}</div>
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        aria-label="Username"
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        aria-label="Password"
-        required
-      />
+      <div role="alert" style="text-align: center; padding-bottom: 0.5em;">
+        {{ msg }}
+      </div>
+
+      {{ form.username(placeholder="Username",rows=1) }}
+      {% if form.username.errors %}
+        <ul class="errors">
+          {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {{ form.password(placeholder="Password",rows=1) }}
+      {% if form.password.errors %}
+        <ul class="errors">
+          {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
       <fieldset>
         <label for="remember">
           <input type="checkbox" role="switch" id="remember" name="remember" />
