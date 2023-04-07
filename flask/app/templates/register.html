@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block head %}
+<title>Login</title>
+{% endblock %} {% block body %}
+<article class="grid">
+  <div>
+    <hgroup>
+      <h1>Sign Up</h1>
+      <h2>Get access to posts and comments</h2>
+    </hgroup>
+    <form action="{{url_for('register')}}" method="POST" autocomplete="off">
+      <div role="alert">{{ msg }}</div>
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        aria-label="Name"
+        required
+      />
+      <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        aria-label="Username"
+        required
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        aria-label="Password"
+        required
+      />
+      <fieldset>
+        <label for="terms">
+          <input type="checkbox" id="terms" name="terms" />
+          I agree to the Terms and Conditions
+        </label>
+      </fieldset>
+      <button type="submit" class="contrast">Register</button>
+    </form>
+  </div>
+  <div style="background-image: url('../static/register.jpg')"></div>
+</article>
+{% endblock %}
