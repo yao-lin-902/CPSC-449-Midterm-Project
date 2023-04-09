@@ -43,7 +43,7 @@ def login():
         if user and flask_bcrypt.check_password_hash(user[3], password):
             msg = "Login successfully!"
             access_token = create_access_token(identity=username)
-            resp = make_response(render_template("login.html", msg=msg))
+            resp = make_response(render_template("login.html", msg=msg, form=form))
             set_access_cookies(resp, access_token)
             return resp
         else:
@@ -80,7 +80,8 @@ def register():
 
 @app.route("/logout")
 def logout():
-    resp = make_response(render_template("login.html"))
+    form = LoginForm(request.form)
+    resp = make_response(render_template("login.html", form=form))
     unset_jwt_cookies(resp)
     return resp
 

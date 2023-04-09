@@ -21,17 +21,22 @@ flask_bcrypt = Bcrypt(app)
 
 class RegisterForm(Form):
     name = StringField(
-        "Name", [validators.DataRequired(), validators.Length(min=1, max=30)]
+        "Name",
+        [
+            validators.DataRequired(),
+            validators.Length(min=1, max=30),
+            validators.Regexp("^[a-zA-Z ]*$", message="Name must contain letters only"),
+        ],
     )
     username = StringField(
         "Username",
         [
+            validators.DataRequired(),
+            validators.Length(min=6, max=30),
             validators.Regexp(
                 "^\w+$",
                 message="Username must contain only letters, numbers, or underscore",
             ),
-            validators.DataRequired(),
-            validators.Length(min=6, max=30),
         ],
     )
     password = PasswordField(
@@ -47,12 +52,12 @@ class LoginForm(Form):
     username = StringField(
         "Username",
         [
+            validators.DataRequired(),
+            validators.Length(min=6, max=30),
             validators.Regexp(
                 "^\w+$",
                 message="Username must contain only letters, numbers, or underscore",
             ),
-            validators.DataRequired(),
-            validators.Length(min=6, max=30),
         ],
     )
     password = PasswordField(
