@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from wtforms import Form, StringField, PasswordField, validators
 from datetime import timedelta
 
+
 from flask import (
     Flask,
     render_template,
@@ -23,6 +24,12 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 import re
+
+import os
+# from flask_uploads import UploadSet, IMAGES, configure_uploads
+# from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 app.config["MYSQL_HOST"] = "localhost"
@@ -155,7 +162,27 @@ def protected_profile():
     username = get_jwt_identity()
     return render_template("profile.html", username=username)
 
+@app.route("/upload_profile_pic", methods=["POST"])
+@jwt_required()
+def upload_profile_pic():
+    if "profile_pic" in request.files:
+        username = get_jwt_identity()
+        profile_pic = request.files["profile_pic"]
+        filename = secure_filename(profile_pic.filename)
+        
+        profile_pics_path = os.path.join(app.root_path, "static/profile_pics")
+        profile_pic.save(os.path.join(profile_pics_path, f"{username}.{filename.split('.')[-1]}"))
 
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "UPDATE user SET profile_pic = %s WHERE username = %s",
+            (f"{username}.{filename.split('.')[-1]}", username),
+        )
+        mysql.connection.commit()
+        return redirect(url_for("protected_profile"))
+    else:
+        return "No file uploaded.", 400
+    
 # error handling
 @app.errorhandler(404)
 def page_not_found(e):
