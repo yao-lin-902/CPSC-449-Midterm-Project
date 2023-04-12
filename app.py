@@ -136,7 +136,7 @@ def register():
             msg = "User already exist!"
         else:
             cur.execute(
-                "INSERT INTO user VALUES (NULL, %s, %s, %s)",
+                "INSERT INTO user VALUES (NULL, %s, %s, %s, 'default_profile_pic.jpg')",
                 (
                     name,
                     username,
@@ -160,7 +160,12 @@ def logout():
 @jwt_required()
 def protected_profile():
     username = get_jwt_identity()
-    return render_template("profile.html", username=username)
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT profile_pic FROM user WHERE username = %s", (username,))
+    profile_pic = cur.fetchone()
+    print(profile_pic)
+    return render_template("profile.html", username=username, profile_pic = profile_pic[0])
+
 
 @app.route("/upload_profile_pic", methods=["POST"])
 @jwt_required()
