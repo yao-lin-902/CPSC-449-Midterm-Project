@@ -5,8 +5,12 @@
   <h1>Welcome to your profile page!</h1>
 </hgroup>
 <p>User: {{ username }}</p>
+
 <img src="{{ url_for('static', filename='profile_pics/' + profile_pic) }}" alt="Profile Picture" width="200" height="200">
-<form action="{{ url_for('upload_profile_pic') }}" method="post" enctype="multipart/form-data">
-    <input type="file" name="profile_pic" accept="image/*">
-    <input type="submit
+
+<form id="upload-form" method="POST" action="{{ url_for('upload_profile_pic') }}" enctype="multipart/form-data">
+  <input type="file" name="profile_pic" accept="image/*">
+  <input type="submit" value="Upload">
+</form>
+
 {% endblock %}

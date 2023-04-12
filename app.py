@@ -26,8 +26,7 @@ from flask_jwt_extended import (
 import re
 
 import os
-# from flask_uploads import UploadSet, IMAGES, configure_uploads
-# from werkzeug import secure_filename
+
 from werkzeug.utils import secure_filename
 
 
@@ -39,6 +38,8 @@ app.config["MYSQL_DB"] = "web"
 app.config["JWT_SECRET_KEY"] = "3821b6c598199d34ea47e7fdf4c90122"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_CSRF_IN_COOKIES"] = True
+app.config["JWT_ACCESS_CSRF_FIELD_NAME"] = "csrf_access_token"
 
 mysql = MySQL(app)
 jwt = JWTManager(app)
@@ -163,13 +164,16 @@ def protected_profile():
     cur = mysql.connection.cursor()
     cur.execute("SELECT profile_pic FROM user WHERE username = %s", (username,))
     profile_pic = cur.fetchone()
-    print(profile_pic)
     return render_template("profile.html", username=username, profile_pic = profile_pic[0])
 
 
 @app.route("/upload_profile_pic", methods=["POST"])
 @jwt_required()
 def upload_profile_pic():
+
+    print(request.cookies)
+    print(get_jwt_identity())
+
     if "profile_pic" in request.files:
         username = get_jwt_identity()
         profile_pic = request.files["profile_pic"]
@@ -187,16 +191,16 @@ def upload_profile_pic():
         return redirect(url_for("protected_profile"))
     else:
         return "No file uploaded.", 400
-    
+
 # error handling
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("/error-pages/404.html"), 404
 
 
-@jwt.unauthorized_loader
-def unauthorized_response(callback):
-    return render_template("/error-pages/401.html"), 401
+# @jwt.unauthorized_loader
+# def unauthorized_response(callback):
+#     return render_template("/error-pages/401.html"), 401
 
 
 if __name__ == "__main__":
