@@ -113,7 +113,7 @@ def login():
         )
         user = cur.fetchone()
         if user and flask_bcrypt.check_password_hash(user[3], password):
-            msg = "Login successfully!"
+            msg = "Login successful!"
             access_token = create_access_token(identity=username)
             resp = make_response(render_template("login.html", msg=msg, form=form))
             set_access_cookies(resp, access_token)
@@ -199,9 +199,9 @@ def page_not_found(e):
     return render_template("/error-pages/404.html"), 404
 
 
-# @jwt.unauthorized_loader
-# def unauthorized_response(callback):
-#     return render_template("/error-pages/401.html"), 401
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return render_template("/error-pages/401.html"), 401
 
 
 if __name__ == "__main__":
