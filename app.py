@@ -41,6 +41,7 @@ app.config["JWT_SECRET_KEY"] = "3821b6c598199d34ea47e7fdf4c90122"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_CSRF_METHODS"] = []
+
 #app.config["JWT_CSRF_IN_COOKIES"] = True
 #app.config["JWT_ACCESS_CSRF_FIELD_NAME"] = "csrf_access_token"
 
@@ -203,18 +204,7 @@ def upload_profile_pic():
             return "Invalid file.", 400
     else:
         return "No file uploaded.", 400
-
-
-# error handling
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template("/error-pages/404.html"), 404
-
-
-@jwt.unauthorized_loader
-def unauthorized_response(callback):
-    return render_template("/error-pages/401.html"), 401
-
+    
 # helper function for checking file extension and size
     
 def allowed_file(file, allowed_extensions, max_size):
@@ -231,6 +221,26 @@ def allowed_file(file, allowed_extensions, max_size):
 
     return True
 
+@app.route("/public", methods=["GET"])
+def public():
+    public_items = get_public_items()
+    return render_template("public.html", public_items=public_items)
+
+def get_public_items():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM public_items")
+    items = cur.fetchall()
+    return items
+
+# error handling
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("/error-pages/404.html"), 404
+
+
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return render_template("/error-pages/401.html"), 401
 
 if __name__ == "__main__":
     app.run(host="localhost", port=int("5000"))
