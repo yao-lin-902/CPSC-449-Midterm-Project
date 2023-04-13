@@ -29,12 +29,14 @@ import os
 
 from werkzeug.utils import secure_filename
 
-
+# Create Flask app and configure settings
 app = Flask(__name__)
+
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "web"
+
 app.config["JWT_SECRET_KEY"] = "3821b6c598199d34ea47e7fdf4c90122"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
@@ -42,11 +44,12 @@ app.config["JWT_CSRF_METHODS"] = []
 #app.config["JWT_CSRF_IN_COOKIES"] = True
 #app.config["JWT_ACCESS_CSRF_FIELD_NAME"] = "csrf_access_token"
 
+# Initialize MYSQL, JWT, and Bcrypt
 mysql = MySQL(app)
 jwt = JWTManager(app)
 flask_bcrypt = Bcrypt(app)
 
-
+# Define registration form class
 class RegisterForm(Form):
     name = StringField(
         "Name",
@@ -75,7 +78,7 @@ class RegisterForm(Form):
         ],
     )
 
-
+# Define login form class
 class LoginForm(Form):
     username = StringField(
         "Username",
@@ -93,12 +96,15 @@ class LoginForm(Form):
     )
 
 
+# Define routes and their respective functions
+
+# Home route
 @app.route("/")
 @app.route("/home")
 def home():
     return render_template("home.html")
 
-
+# Login route
 @app.route("/login", methods=["GET", "POST"])
 def login():
     msg = ""
@@ -122,7 +128,7 @@ def login():
             msg = "Incorrect login!"
     return render_template("login.html", msg=msg, form=form)
 
-
+# Register route
 @app.route("/register", methods=["GET", "POST"])
 def register():
     msg = ""
@@ -149,7 +155,7 @@ def register():
             msg = "Register successfully!"
     return render_template("register.html", msg=msg, form=form)
 
-
+# Logout route
 @app.route("/logout")
 def logout():
     form = LoginForm(request.form)
@@ -157,7 +163,7 @@ def logout():
     unset_jwt_cookies(resp)
     return resp
 
-
+# Protected profile route
 @app.route("/profile", methods=["GET"])
 @jwt_required()
 def protected_profile():
@@ -167,31 +173,37 @@ def protected_profile():
     profile_pic = cur.fetchone()
     return render_template("profile.html", username=username, profile_pic = profile_pic[0])
 
-
+# Upload profile picture route
 @app.route("/upload_profile_pic", methods=["POST"])
 @jwt_required()
 def upload_profile_pic():
-
-    print(request.cookies)
-    print(get_jwt_identity())
-
     if "profile_pic" in request.files:
         username = get_jwt_identity()
         profile_pic = request.files["profile_pic"]
-        filename = secure_filename(profile_pic.filename)
-        
-        profile_pics_path = os.path.join(app.root_path, "static/profile_pics")
-        profile_pic.save(os.path.join(profile_pics_path, f"{username}.{filename.split('.')[-1]}"))
 
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "UPDATE user SET profile_pic = %s WHERE username = %s",
-            (f"{username}.{filename.split('.')[-1]}", username),
-        )
-        mysql.connection.commit()
-        return redirect(url_for("protected_profile"))
+        # Define allowed file extensions and the maximum file size (in bytes)
+        allowed_extensions = {"jpg", "jpeg", "png", "gif"}
+        max_file_size = 5 * 1024 * 1024  # 5 MB
+
+        # Validate the uploaded file
+        if allowed_file(profile_pic, allowed_extensions, max_file_size):
+            filename = secure_filename(profile_pic.filename)
+
+            profile_pics_path = os.path.join(app.root_path, "static/profile_pics")
+            profile_pic.save(os.path.join(profile_pics_path, f"{username}.{filename.split('.')[-1]}"))
+
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "UPDATE user SET profile_pic = %s WHERE username = %s",
+                (f"{username}.{filename.split('.')[-1]}", username),
+            )
+            mysql.connection.commit()
+            return redirect(url_for("protected_profile"))
+        else:
+            return "Invalid file.", 400
     else:
         return "No file uploaded.", 400
+
 
 # error handling
 @app.errorhandler(404)
@@ -202,6 +214,22 @@ def page_not_found(e):
 @jwt.unauthorized_loader
 def unauthorized_response(callback):
     return render_template("/error-pages/401.html"), 401
+
+# helper function for checking file extension and size
+    
+def allowed_file(file, allowed_extensions, max_size):
+    # Check if the file has a valid extension
+    filename = file.filename
+    file_ext = filename.rsplit(".", 1)[1].lower()
+    if file_ext not in allowed_extensions:
+        return False
+
+    # Check if the file size is within the allowed limit
+    file_size = file.content_length
+    if file_size > max_size:
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
