@@ -1,4 +1,6 @@
 # CPSC-449-Midterm-Project
+Team Members: Yao Lin, Arish Imam, Karnikaa Velumani
+
 Back End Project
 
 A simple web app using Flask, MySQL, Flask-JWT-Extended, and Flask-Bcrypt to create a user registration and login system, as well as displaying public items.
