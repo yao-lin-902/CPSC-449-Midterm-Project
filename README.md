@@ -15,6 +15,27 @@ Flask-MySQLDB
 Flask-CORS
 WTForms
 
+Initializing the Database
+
+Before running the application, you need to create and initialize a MySQL database with the required tables. Follow these steps:
+
+Create a MySQL database named web. You can use the following command in the MySQL command-line client or any MySQL GUI tool like MySQL Workbench or phpMyAdmin:
+
+CREATE DATABASE web;
+
+Select the web database:
+USE web;
+
+Create the user table with the following schema:
+
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    username VARCHAR(30) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    profile_pic VARCHAR(255) DEFAULT 'default_profile_pic.jpg'
+);
+
 
 Installation:
 
