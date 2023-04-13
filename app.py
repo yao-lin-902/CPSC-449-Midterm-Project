@@ -38,8 +38,9 @@ app.config["MYSQL_DB"] = "web"
 app.config["JWT_SECRET_KEY"] = "3821b6c598199d34ea47e7fdf4c90122"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_CSRF_IN_COOKIES"] = True
-app.config["JWT_ACCESS_CSRF_FIELD_NAME"] = "csrf_access_token"
+app.config["JWT_CSRF_METHODS"] = []
+#app.config["JWT_CSRF_IN_COOKIES"] = True
+#app.config["JWT_ACCESS_CSRF_FIELD_NAME"] = "csrf_access_token"
 
 mysql = MySQL(app)
 jwt = JWTManager(app)
