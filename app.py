@@ -4,6 +4,8 @@ from wtforms import Form, StringField, PasswordField, validators
 from datetime import timedelta
 
 
+
+
 from flask import (
     Flask,
     render_template,
@@ -12,6 +14,7 @@ from flask import (
     url_for,
     session,
     make_response,
+    jsonify
 )
 from flask_mysqldb import MySQL
 from flask_cors import CORS
@@ -182,7 +185,7 @@ def upload_profile_pic():
         username = get_jwt_identity()
         profile_pic = request.files["profile_pic"]
 
-        # Define allowed file extensions and the maximum file size (in bytes)
+        # Define allowed file extensions and the maximum file size in bytes
         allowed_extensions = {"jpg", "jpeg", "png", "gif"}
         max_file_size = 5 * 1024 * 1024  # 5 MB
 
@@ -206,7 +209,6 @@ def upload_profile_pic():
         return "No file uploaded.", 400
     
 # helper function for checking file extension and size
-    
 def allowed_file(file, allowed_extensions, max_size):
     # Check if the file has a valid extension
     filename = file.filename
@@ -223,14 +225,19 @@ def allowed_file(file, allowed_extensions, max_size):
 
 @app.route("/public", methods=["GET"])
 def public():
-    public_items = get_public_items()
-    return render_template("public.html", public_items=public_items)
+    response = make_response(
+                jsonify(
+                    {"public_route": ["home", "login", "register", "logout"]}
+                ),
+                200,
+            )
+    return response
 
-def get_public_items():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM public_items")
-    items = cur.fetchall()
-    return items
+# def get_public_items():
+#     cur = mysql.connection.cursor()
+#     cur.execute("SELECT * FROM public_items")
+#     items = cur.fetchall()
+#     return items
 
 # error handling
 @app.errorhandler(404)
