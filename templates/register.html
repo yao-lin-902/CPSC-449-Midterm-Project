@@ -1,0 +1,55 @@
+{% extends 'base.html' %} {% block head %}
+<title>Login</title>
+{% endblock %} {% block body %}
+<article class="grid">
+  <div>
+    <hgroup>
+      <h1>Sign Up</h1>
+      <h2>Get access to posts and comments</h2>
+    </hgroup>
+    <form action="{{url_for('register')}}" method="POST" autocomplete="off">
+      <div role="alert" style="text-align: center; padding-bottom: 0.5em;">
+        {{ msg }}
+      </div>
+
+      {{ form.name(placeholder="Name",rows=1) }}
+      {% if form.name.errors %}
+        <ul class="errors">
+          {% for error in form.name.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {{ form.username(placeholder="Username",rows=1) }}
+      {% if form.username.errors %}
+        <ul class="errors">
+          {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {{ form.password(placeholder="Password",rows=1) }}
+      {% if form.password.errors %}
+        <ul class="errors">
+          {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <fieldset>
+        <label for="terms">
+          <input type="checkbox" id="terms" name="terms" />
+          I agree to the Terms and Conditions
+        </label>
+      </fieldset>
+      <button type="submit" class="contrast">Register</button>
+    </form>
+  </div>
+  <div>
+    <img src="../static/register.jpg">
+  </div>
+</article>
+{% endblock %}
